@@ -1,0 +1,31 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: deployment-auth-mongo
+spec:
+  replicas: 1 
+  selector:
+    matchLabels: 
+      app: deployment-auth-mongo-pod 
+  template: 
+    metadata: 
+      labels:
+        app: deployment-auth-mongo-pod 
+    spec:
+      containers:
+        - name: deployment-auth-mongo-container
+          image: mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-auth-mongo ##nombre que tendra el servicio que comunica los pods dentro del cluster, nombre que usare en la conf de connexion a mongo 
+spec:
+  selector:
+    app: deployment-auth-mongo-pod   
+  type: ClusterIP 
+  ports:  
+    - name: serv-auth-port-database
+      protocol: TCP
+      port: 27017
+      targetPort: 27017

@@ -1,0 +1,39 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: deployment-auth
+spec:
+  replicas: 1 
+  selector:
+    matchLabels: 
+      app: deployment-auth-pod 
+  template: 
+    metadata: 
+      labels:
+        app: deployment-auth-pod 
+    spec:
+      containers:
+        - name: deployment-auth-container
+          image: valvarezxxx/auth:latest
+          env:
+            - name: MONGO_URI
+              value: 'mongodb://service-auth-mongo:27017/auth'
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-auth ##nombre que tendra el servicio que comunica los pods dentro del cluster
+spec:
+  selector:
+    app: deployment-auth-pod  
+  type: ClusterIP 
+  ports:  
+    - name: service-auth-ports
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

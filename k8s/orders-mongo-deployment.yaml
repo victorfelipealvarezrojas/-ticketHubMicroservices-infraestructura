@@ -1,0 +1,31 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: deployment-orders-mongo
+spec:
+  replicas: 1 
+  selector:
+    matchLabels: 
+      app: deployment-orders-mongo-pod 
+  template: 
+    metadata: 
+      labels:
+        app: deployment-orders-mongo-pod 
+    spec:
+      containers:
+        - name: deployment-orders-mongo-container
+          image: mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-orders-mongo ##nombre que tendra el servicio que comunica los pods dentro del cluster, nombre que usare en la conf de connexion a mongo 
+spec:
+  selector:
+    app: deployment-orders-mongo-pod   
+  type: ClusterIP 
+  ports:  
+    - name: serv-orders-port-database
+      protocol: TCP
+      port: 27017
+      targetPort: 27017

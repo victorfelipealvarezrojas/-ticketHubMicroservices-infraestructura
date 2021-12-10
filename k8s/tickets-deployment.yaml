@@ -1,0 +1,47 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: deployment-tickets
+spec:
+  replicas: 1 
+  selector:
+    matchLabels: 
+      app: deployment-tickets-pod 
+  template: 
+    metadata: 
+      labels:
+        app: deployment-tickets-pod 
+    spec:
+      containers:
+        - name: deployment-tickets-container
+          image: valvarezxxx/tickets:latest
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: 'http://nats-streaming-services:4222'
+            - name: NATS_CLUSTER_ID
+              value: ticketing
+            - name: MONGO_URI
+              value: 'mongodb://service-tickets-mongo:27017/tickets'
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-tickets ##nombre que tendra el servicio que comunica los pods dentro del cluster y el servicio que utiliza ingrass
+spec:
+  selector:
+    app: deployment-tickets-pod  
+  type: ClusterIP 
+  ports:  
+    - name: service-tickets-ports
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

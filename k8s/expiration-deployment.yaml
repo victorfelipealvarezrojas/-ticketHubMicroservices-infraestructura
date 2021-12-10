@@ -1,0 +1,28 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: deployment-expiration
+spec:
+  replicas: 1 
+  selector:
+    matchLabels: 
+      app: deployment-expiration-pod 
+  template: 
+    metadata: 
+      labels:
+        app: deployment-expiration-pod 
+    spec:
+      containers:
+        - name: deployment-expiration-container
+          image: valvarezxxx/expiration:latest
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: 'http://nats-streaming-services:4222'
+            - name: NATS_CLUSTER_ID
+              value: ticketing
+            - name: REDIS_HOST
+              value: service-expiration-redis

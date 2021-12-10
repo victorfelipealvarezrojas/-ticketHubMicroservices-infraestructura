@@ -1,0 +1,47 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: deployment-orders
+spec:
+  replicas: 1 
+  selector:
+    matchLabels: 
+      app: deployment-orders-pod 
+  template: 
+    metadata: 
+      labels:
+        app: deployment-orders-pod 
+    spec:
+      containers:
+        - name: deployment-orders-container
+          image: valvarezxxx/orders:latest
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: 'http://nats-streaming-services:4222'
+            - name: NATS_CLUSTER_ID
+              value: ticketing
+            - name: MONGO_URI
+              value: 'mongodb://service-orders-mongo:27017/orders'
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-orders ##nombre que tendra el servicio que comunica los pods dentro del cluster y el servicio que utiliza ingrass
+spec:
+  selector:
+    app: deployment-orders-pod  
+  type: ClusterIP 
+  ports:  
+    - name: service-orders-ports
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

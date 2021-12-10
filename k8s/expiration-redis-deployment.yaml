@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-expiration-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deployment-expiration-redis-pod
+  template:
+    metadata:
+      labels:
+        app: deployment-expiration-redis-pod
+    spec:
+      containers:
+        - name: deployment-expiration-redis-container
+          image: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-expiration-redis 
+spec:
+  selector:
+    app: deployment-expiration-redis-pod  
+  type: ClusterIP
+  ports:
+    - name: serv-expiration-redis-port-database
+      protocol: TCP
+      port: 6379
+      targetPort: 6379

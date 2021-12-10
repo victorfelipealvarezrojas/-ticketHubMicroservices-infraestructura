@@ -1,0 +1,31 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: deployment-client
+spec:
+  replicas: 1 
+  selector:
+    matchLabels: 
+      app: deployment-client-pod 
+  template: 
+    metadata: 
+      labels:
+        app: deployment-client-pod 
+    spec:
+      containers:
+        - name: deployment-client-container
+          image: valvarezxxx/client:latest
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-client ##nombre que tendra el servicio que comunica los pods dentro del cluster
+spec:
+  selector:
+    app: deployment-client-pod
+  type: ClusterIP 
+  ports:  
+    - name: service-client-ports
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

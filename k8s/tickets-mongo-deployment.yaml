@@ -1,0 +1,31 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: deployment-tickets-mongo
+spec:
+  replicas: 1 
+  selector:
+    matchLabels: 
+      app: deployment-tickets-mongo-pod 
+  template: 
+    metadata: 
+      labels:
+        app: deployment-tickets-mongo-pod 
+    spec:
+      containers:
+        - name: deployment-tickets-mongo-container
+          image: mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-tickets-mongo ##nombre que tendra el servicio que comunica los pods dentro del cluster, nombre que usare en la conf de connexion a mongo 
+spec:
+  selector:
+    app: deployment-tickets-mongo-pod   
+  type: ClusterIP 
+  ports:  
+    - name: serv-tickets-port-database
+      protocol: TCP
+      port: 27017
+      targetPort: 27017

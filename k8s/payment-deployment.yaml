@@ -1,0 +1,52 @@
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: deployment-payments
+spec:
+  replicas: 1 
+  selector:
+    matchLabels: 
+      app: deployment-payments-pod 
+  template: 
+    metadata: 
+      labels:
+        app: deployment-payments-pod 
+    spec:
+      containers:
+        - name: deployment-payments-container
+          image: valvarezxxx/payments:latest
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: 'http://nats-streaming-services:4222'
+            - name: NATS_CLUSTER_ID
+              value: ticketing
+            - name: MONGO_URI
+              value: 'mongodb://service-payments-mongo:27017/payments'
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+            - name: STRIPE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: stripe-secrete
+                  key: STRIPE_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-payments
+spec:
+  selector:
+    app: deployment-payments-pod  
+  type: ClusterIP 
+  ports:  
+    - name: service-payments-ports
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

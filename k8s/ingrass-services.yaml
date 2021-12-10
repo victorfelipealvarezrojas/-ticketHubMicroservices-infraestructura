@@ -1,0 +1,49 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true" ##maneja distintas rutas de archivo
+spec:
+  rules: ##reglas de enrutamiento
+    - host: ticketing.com ##ruta del dominio
+      http:
+        paths:
+          - path: /api/users/?(.*) ##toma el trafico entrante y lo enviara a esta ruta
+            pathType: Prefix ##creo que no es obligatorio
+            backend:
+              service:
+                name: service-auth ##este es el servicio al cual conectare mi ingress de nginx, el servicio clusterIp del proyecto de authpyt definido en el archivo deployment de esa api
+                port:
+                  number: 3000
+          - path: /api/tickets
+            pathType: Prefix
+            backend:
+              service:
+                name: service-tickets
+                port:
+                  number: 3000
+          - path: /api/orders
+            pathType: Prefix
+            backend:
+              service:
+                name: service-orders
+                port:
+                  number: 3000
+          - path: /api/payments/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: service-payments
+                port:
+                  number: 3000
+          - path: /?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: service-client
+                port:
+                  number: 3000
+
+                  
